@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for the Student Attendance Tracker */
+
+:root {
+  --primary-color: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary-color: #475569;
+  --success-color: #059669;
+  --warning-color: #d97706;
+  --error-color: #dc2626;
+  --background-color: #f8fafc;
+  --card-background: #ffffff;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --shadow-color: rgba(0, 0, 0, 0.12);
+  --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  --gradient-secondary: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
+  --gradient-background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #ddd6fe 100%);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: var(--gradient-background);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Enhanced button styles with better contrast */
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:-translate-y-0.5;
+}
+
+.btn-secondary {
+  @apply bg-slate-600 hover:bg-slate-700 focus:bg-slate-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transform hover:-translate-y-0.5;
+}
+
+.btn-success {
+  @apply bg-emerald-600 hover:bg-emerald-700 focus:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transform hover:-translate-y-0.5;
+}
+
+.btn-warning {
+  @apply bg-amber-600 hover:bg-amber-700 focus:bg-amber-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transform hover:-translate-y-0.5;
+}
+
+.btn-danger {
+  @apply bg-red-600 hover:bg-red-700 focus:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+}
+
+.btn-outline {
+  @apply border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 focus:bg-gray-50 focus:border-gray-400 font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+}
+
+/* Enhanced card design */
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all duration-200 hover:shadow-md;
+}
+
+.card-header {
+  @apply border-b border-gray-200 pb-4 mb-4;
+}
+
+.card-title {
+  @apply text-lg font-semibold text-gray-900 mb-1;
+}
+
+.card-subtitle {
+  @apply text-sm text-gray-600;
+}
+
+/* Enhanced input fields */
+.input-field {
+  @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500 transition-all duration-200;
+}
+
+.input-field:focus {
+  @apply shadow-sm;
+}
+
+/* Enhanced table styles */
+.table-header {
+  @apply bg-gray-50 text-gray-700 font-semibold text-sm uppercase tracking-wider;
+}
+
+.table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+}
+
+.table-cell-muted {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-500;
+}
+
+/* Enhanced status badges */
+.status-present {
+  @apply bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+}
+
+.status-absent {
+  @apply bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+}
+
+.status-late {
+  @apply bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+}
+
+.status-active {
+  @apply bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+}
+
+.status-inactive {
+  @apply bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+}
+
+/* Activity type badges */
+.activity-academic {
+  @apply bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+}
+
+.activity-sports {
+  @apply bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+}
+
+.activity-cultural {
+  @apply bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+}
+
+.activity-technical {
+  @apply bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+}
+
+.activity-other {
+  @apply bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide;
+}
+
+/* Loading spinner */
+.spinner {
+  @apply animate-spin h-6 w-6 border-2 border-blue-600 border-t-transparent rounded-full;
+}
+
+/* Page title */
+.page-title {
+  @apply text-3xl font-bold text-gray-900 mb-2;
+}
+
+.page-subtitle {
+  @apply text-gray-600 mb-6;
+}
+
+/* Stats card */
+.stats-card {
+  @apply bg-gradient-to-r p-6 rounded-xl text-white shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105;
+}
+
+.stats-card-blue {
+  @apply from-blue-500 to-blue-600;
+}
+
+.stats-card-green {
+  @apply from-green-500 to-green-600;
+}
+
+.stats-card-yellow {
+  @apply from-amber-500 to-amber-600;
+}
+
+.stats-card-purple {
+  @apply from-purple-500 to-purple-600;
+}
+
+/* Navigation improvements */
+.nav-link {
+  @apply flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 rounded-lg mx-2;
+}
+
+.nav-link-active {
+  @apply bg-blue-100 text-blue-700 border-r-4 border-blue-600 font-semibold;
+}
+
+.nav-link-inactive {
+  @apply text-gray-600 hover:bg-gray-100 hover:text-gray-900;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card {
+    @apply p-4;
+  }
+  
+  .page-title {
+    @apply text-2xl;
+  }
+  
+  .stats-card {
+    @apply p-4;
+  }
+}
+
+/* Enhanced scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Dark mode support - commented out to fix text visibility */
+/*
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #0f172a;
+    --card-background: #1e293b;
+    --border-color: #a3bbdc;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+  }
+  
+  body {
+    @apply bg-slate-900 text-slate-100;
+  }
+  
+  .card {
+    @apply bg-slate-800 border-slate-700;
+  }
+  
+  .table-header {
+    @apply bg-slate-700 text-slate-200;
+  }
+  
+  .input-field {
+    @apply bg-slate-800 border-slate-600 text-slate-100 placeholder-slate-400;
+  }
+}
+*/
+
+/* Force light theme for better visibility */
+.card {
+  background: white !important;
+  color: #1f2937 !important;
+}
+
+.table-header {
+  background: #f9fafb !important;
+  color: #374151 !important;
+}
+
+.input-field {
+  background: white !important;
+  color: #1f2937 !important;
+}
+
+/* Ensure all text is dark */
+body, * {
+  color: #1f2937 !important;
+}
+
+/* Sidebar and navigation */
+nav, .nav-link {
+  color: #374151 !important;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+  color: #111827 !important;
+}
+
+/* Buttons keep their white text */
+.btn-primary, .btn-secondary, .btn-success, .btn-warning, .btn-danger {
+  color: white !important;
+}
+
+/* Status badges keep their colors */
+.status-present, .status-absent, .status-late, .status-active, .status-inactive,
+.activity-academic, .activity-sports, .activity-cultural, .activity-technical, .activity-other {
+  color: inherit !important;
+}
