@@ -185,6 +185,14 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
+    // Basic ID validation
+    if (!id || isNaN(parseInt(id))) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid student ID'
+      });
+    }
+    
     const [student] = await db.execute('SELECT * FROM students WHERE id = ?', [id]);
     
     if (student.length === 0) {
@@ -215,6 +223,14 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
+    
+    // Basic ID validation
+    if (!id || isNaN(parseInt(id))) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid student ID'
+      });
+    }
     
     // Check if student exists
     const [existingStudent] = await db.execute('SELECT * FROM students WHERE id = ?', [id]);
@@ -291,6 +307,14 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
+    // Basic ID validation
+    if (!id || isNaN(parseInt(id))) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid student ID'
+      });
+    }
+    
     // Check if student exists
     const [existingStudent] = await db.execute('SELECT * FROM students WHERE id = ?', [id]);
     if (existingStudent.length === 0) {
@@ -312,309 +336,6 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to delete student',
-      error: error.message
-    });
-  }
-});
-
-module.exports = router;
-
-// Get all students with pagination and search
-router.get('/', async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
-    const search = req.query.search || '';
-    const status = req.query.status || 'active';
-
-    let query = `
-      SELECT id, name, email, phone, student_id, class, section, status, 
-             date_of_birth, address, parent_name, parent_phone, parent_email,
-             created_at, updated_at
-      FROM students 
-      WHERE status = ?
-    `;
-    let countQuery = 'SELECT COUNT(*) as total FROM students WHERE status = ?';
-    let queryParams = [status];
-    let countParams = [status];
-
-    if (search) {
-      query += ` AND (name LIKE ? OR email LIKE ? OR student_id LIKE ?)`;
-      countQuery += ` AND (name LIKE ? OR email LIKE ? OR student_id LIKE ?)`;
-      const searchParam = `%${search}%`;
-      queryParams.push(searchParam, searchParam, searchParam);
-      countParams.push(searchParam, searchParam, searchParam);
-    }
-
-    query += ` ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`;
-    // queryParams.push(limit, offset); // Remove these parameters
-
-    const [students] = await db.execute(query, queryParams);
-    const [countResult] = await db.execute(countQuery, countParams);
-    const total = countResult[0].total;
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        students,
-        pagination: {
-          current_page: page,
-          total_pages: Math.ceil(total / limit),
-          total_records: total,
-          records_per_page: limit
-        }
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: 'Failed to fetch students',
-      error: error.message
-    });
-  }
-});
-
-// Get student by ID
-router.get('/:id', validateId, async (req, res) => {
-  try {
-    const [students] = await db.execute(
-      'SELECT * FROM students WHERE id = ?',
-      [req.params.id]
-    );
-
-    if (students.length === 0) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Student not found'
-      });
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: { student: students[0] }
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: 'Failed to fetch student',
-      error: error.message
-    });
-  }
-});
-
-// Create new student
-router.post('/', validateStudent, async (req, res) => {
-  try {
-    const { 
-      name, email, phone, student_id, class: studentClass, section,
-      date_of_birth, address, parent_name, parent_phone, parent_email 
-    } = req.body;
-
-    const [result] = await db.execute(
-      `INSERT INTO students (name, email, phone, student_id, class, section, 
-                            date_of_birth, address, parent_name, parent_phone, parent_email) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        name, 
-        email || null, 
-        phone || null, 
-        student_id, 
-        studentClass || null, 
-        section || null,
-        date_of_birth || null,
-        address || null,
-        parent_name || null,
-        parent_phone || null,
-        parent_email || null
-      ]
-    );
-
-    const [newStudent] = await db.execute(
-      'SELECT * FROM students WHERE id = ?',
-      [result.insertId]
-    );
-
-    res.status(201).json({
-      status: 'success',
-      message: 'Student created successfully',
-      data: { student: newStudent[0] }
-    });
-  } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Student with this email or student ID already exists'
-      });
-    }
-
-    res.status(500).json({
-      status: 'error',
-      message: 'Failed to create student',
-      error: error.message
-    });
-  }
-});
-
-// Update student
-router.put('/:id', validateId, validateStudent, async (req, res) => {
-  try {
-    const { 
-      name, email, phone, student_id, class: studentClass, section,
-      date_of_birth, address, parent_name, parent_phone, parent_email 
-    } = req.body;
-
-    const [result] = await db.execute(
-      `UPDATE students 
-       SET name = ?, email = ?, phone = ?, student_id = ?, class = ?, section = ?,
-           date_of_birth = ?, address = ?, parent_name = ?, parent_phone = ?, parent_email = ?
-       WHERE id = ?`,
-      [
-        name, 
-        email || null, 
-        phone || null, 
-        student_id, 
-        studentClass || null, 
-        section || null,
-        date_of_birth || null,
-        address || null,
-        parent_name || null,
-        parent_phone || null,
-        parent_email || null,
-        req.params.id
-      ]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Student not found'
-      });
-    }
-
-    const [updatedStudent] = await db.execute(
-      'SELECT * FROM students WHERE id = ?',
-      [req.params.id]
-    );
-
-    res.status(200).json({
-      status: 'success',
-      message: 'Student updated successfully',
-      data: { student: updatedStudent[0] }
-    });
-  } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Student with this email or student ID already exists'
-      });
-    }
-
-    res.status(500).json({
-      status: 'error',
-      message: 'Failed to update student',
-      error: error.message
-    });
-  }
-});
-
-// Delete student (soft delete)
-router.delete('/:id', validateId, async (req, res) => {
-  try {
-    const [result] = await db.execute(
-      'UPDATE students SET status = "inactive" WHERE id = ?',
-      [req.params.id]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Student not found'
-      });
-    }
-
-    res.status(200).json({
-      status: 'success',
-      message: 'Student deleted successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: 'Failed to delete student',
-      error: error.message
-    });
-  }
-});
-
-// Get student's attendance summary
-router.get('/:id/attendance-summary', validateId, async (req, res) => {
-  try {
-    const [attendanceData] = await db.execute(`
-      SELECT 
-        COUNT(*) as total_days,
-        SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present_days,
-        SUM(CASE WHEN status = 'absent' THEN 1 ELSE 0 END) as absent_days,
-        SUM(CASE WHEN status = 'late' THEN 1 ELSE 0 END) as late_days,
-        ROUND((SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as attendance_percentage
-      FROM attendance 
-      WHERE student_id = ?
-    `, [req.params.id]);
-
-    const [recentAttendance] = await db.execute(`
-      SELECT date, status, remarks 
-      FROM attendance 
-      WHERE student_id = ? 
-      ORDER BY date DESC 
-      LIMIT 10
-    `, [req.params.id]);
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        summary: attendanceData[0],
-        recent_attendance: recentAttendance
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: 'Failed to fetch attendance summary',
-      error: error.message
-    });
-  }
-});
-
-// Get student's activities
-router.get('/:id/activities', validateId, async (req, res) => {
-  try {
-    const [activities] = await db.execute(`
-      SELECT * FROM activities 
-      WHERE student_id = ? 
-      ORDER BY activity_date DESC
-    `, [req.params.id]);
-
-    const [summary] = await db.execute(`
-      SELECT 
-        COUNT(*) as total_activities,
-        SUM(points) as total_points,
-        activity_type,
-        COUNT(*) as count
-      FROM activities 
-      WHERE student_id = ?
-      GROUP BY activity_type
-    `, [req.params.id]);
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        activities,
-        summary: summary
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: 'Failed to fetch student activities',
       error: error.message
     });
   }
