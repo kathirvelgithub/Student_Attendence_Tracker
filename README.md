@@ -37,7 +37,7 @@ Student_Attendence_Tracker/
  │   └── package.json
  ├── backend/
  │   ├── src/
- │   ├── pom.xml (or package.json)
+ │   ├── package.json
  │   └── Dockerfile
  ├── README.md
  └── .gitignore
