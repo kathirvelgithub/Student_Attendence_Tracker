@@ -27,15 +27,15 @@ router.get('/', validateDateRange, async (req, res) => {
     let countParams = [];
 
     if (start_date) {
-      query += ' AND a.activity_date >= ?';
-      countQuery += ' AND a.activity_date >= ?';
+      query += ' AND a.date >= ?';
+      countQuery += ' AND a.date >= ?';
       queryParams.push(start_date);
       countParams.push(start_date);
     }
 
     if (end_date) {
-      query += ' AND a.activity_date <= ?';
-      countQuery += ' AND a.activity_date <= ?';
+      query += ' AND a.date <= ?';
+      countQuery += ' AND a.date <= ?';
       queryParams.push(end_date);
       countParams.push(end_date);
     }
@@ -61,7 +61,7 @@ router.get('/', validateDateRange, async (req, res) => {
       countParams.push(status);
     }
 
-    query += ` ORDER BY a.activity_date DESC, a.created_at DESC LIMIT ${limit} OFFSET ${offset}`;
+    query += ` ORDER BY a.date DESC, a.created_at DESC LIMIT ${limit} OFFSET ${offset}`;
     // queryParams.push(limit, offset); // Remove these parameters
 
     const [activities] = await db.execute(query, queryParams);
@@ -124,13 +124,12 @@ router.post('/', validateActivity, async (req, res) => {
   try {
     const {
       student_id,
-      activity_name,
+      title,
       activity_type,
       description,
-      activity_date,
+      date,
       points,
-      status,
-      recorded_by
+      status
     } = req.body;
 
     // Check if student exists
@@ -147,17 +146,16 @@ router.post('/', validateActivity, async (req, res) => {
     }
 
     const [result] = await db.execute(
-      `INSERT INTO activities (student_id, activity_name, activity_type, description, activity_date, points, status, recorded_by) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO activities (student_id, title, activity_type, description, date, points, status) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         student_id,
-        activity_name,
+        title,
         activity_type,
         description || null,
-        activity_date,
+        date,
         points || 0,
-        status || 'participated',
-        recorded_by || null
+        status || 'pending'
       ]
     );
 
@@ -187,29 +185,27 @@ router.put('/:id', validateId, validateActivity, async (req, res) => {
   try {
     const {
       student_id,
-      activity_name,
+      title,
       activity_type,
       description,
-      activity_date,
+      date,
       points,
-      status,
-      recorded_by
+      status
     } = req.body;
 
     const [result] = await db.execute(
       `UPDATE activities 
-       SET student_id = ?, activity_name = ?, activity_type = ?, description = ?, 
-           activity_date = ?, points = ?, status = ?, recorded_by = ?
+       SET student_id = ?, title = ?, activity_type = ?, description = ?, 
+           date = ?, points = ?, status = ?
        WHERE id = ?`,
       [
         student_id,
-        activity_name,
+        title,
         activity_type,
         description || null,
-        activity_date,
+        date,
         points || 0,
-        status || 'participated',
-        recorded_by || null,
+        status || 'pending',
         req.params.id
       ]
     );
@@ -279,13 +275,13 @@ router.get('/statistics/overview', validateDateRange, async (req, res) => {
     let params = [];
     
     if (start_date && end_date) {
-      dateFilter = 'WHERE activity_date BETWEEN ? AND ?';
+      dateFilter = 'WHERE date BETWEEN ? AND ?';
       params = [start_date, end_date];
     } else if (start_date) {
-      dateFilter = 'WHERE activity_date >= ?';
+      dateFilter = 'WHERE date >= ?';
       params = [start_date];
     } else if (end_date) {
-      dateFilter = 'WHERE activity_date <= ?';
+      dateFilter = 'WHERE date <= ?';
       params = [end_date];
     }
 
@@ -343,9 +339,9 @@ router.get('/statistics/overview', validateDateRange, async (req, res) => {
     // Recent activities
     const [recentActivities] = await db.execute(`
       SELECT 
-        a.activity_name,
+        a.title,
         a.activity_type,
-        a.activity_date,
+        a.date,
         a.points,
         a.status,
         s.name as student_name,
@@ -353,7 +349,7 @@ router.get('/statistics/overview', validateDateRange, async (req, res) => {
       FROM activities a
       JOIN students s ON a.student_id = s.id
       ${dateFilter}
-      ORDER BY a.activity_date DESC, a.created_at DESC
+      ORDER BY a.date DESC, a.created_at DESC
       LIMIT 10
     `, params);
 
@@ -386,20 +382,20 @@ router.get('/student/:student_id', validateId, validateDateRange, async (req, re
     let params = [student_id];
     
     if (start_date && end_date) {
-      dateFilter = 'AND activity_date BETWEEN ? AND ?';
+      dateFilter = 'AND date BETWEEN ? AND ?';
       params.push(start_date, end_date);
     } else if (start_date) {
-      dateFilter = 'AND activity_date >= ?';
+      dateFilter = 'AND date >= ?';
       params.push(start_date);
     } else if (end_date) {
-      dateFilter = 'AND activity_date <= ?';
+      dateFilter = 'AND date <= ?';
       params.push(end_date);
     }
 
     const [activities] = await db.execute(`
       SELECT * FROM activities 
       WHERE student_id = ? ${dateFilter}
-      ORDER BY activity_date DESC
+      ORDER BY date DESC
     `, params);
 
     const [summary] = await db.execute(`

@@ -1,0 +1,23 @@
+# Docker MySQL Setup
+# Run this in your Backend directory
+
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: student_attendance_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: student_attendance_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  mysql_data:

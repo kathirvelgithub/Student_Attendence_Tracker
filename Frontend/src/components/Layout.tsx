@@ -6,7 +6,6 @@ import {
   Calendar, 
   Activity, 
   BarChart3, 
-  Trophy, 
   LogOut,
   Menu,
   X,
@@ -29,7 +28,6 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
     { name: 'Attendance', href: '/attendance', icon: Calendar },
     { name: 'Activities', href: '/activities', icon: Activity },
     { name: 'Reports', href: '/reports', icon: BarChart3 },
-    { name: 'Rankings', href: '/rankings', icon: Trophy },
   ];
 
   const handleLogout = () => {

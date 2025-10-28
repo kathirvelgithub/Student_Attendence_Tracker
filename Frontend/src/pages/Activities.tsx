@@ -29,15 +29,21 @@ const Activities: React.FC = () => {
       setLoading(true);
       setError(null);
       const response = await activitiesApi.getAll();
-      // Extract activities array from API response
+      console.log('Activities API Response:', response.data);
+      
+      // Backend returns: { success: true, data: { activities: [...], pagination: {...} } }
       const activitiesData = response.data?.data?.activities || [];
-      setActivities(activitiesData);
+      
+      console.log('Processed activities:', activitiesData);
+      setActivities(Array.isArray(activitiesData) ? activitiesData : []);
     } catch (err: any) {
+      console.error('Activities fetch error:', err);
       const errorMessage = handleApiError(err as AxiosError, 'Failed to fetch activities');
       setError(errorMessage);
       
       // Only use fallback data for server errors or network issues
       if (isServerError(err as AxiosError) || !err.response) {
+        console.log('Using mock data due to server error');
         setActivities(getMockActivities());
       } else {
         setActivities([]);
@@ -111,8 +117,11 @@ const Activities: React.FC = () => {
   ];
 
   const filteredActivities = activities.filter(activity => {
-    const matchesSearch = activity.activity_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         activity.name?.toLowerCase().includes(searchTerm.toLowerCase());
+    if (!activity) return false;
+    
+    const matchesSearch = activity.activity_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         activity.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         false;
     const matchesType = !selectedType || activity.activity_type === selectedType;
     const matchesStatus = !selectedStatus || activity.status === selectedStatus;
     
@@ -238,22 +247,22 @@ const Activities: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Student:</span>
-                <span className="font-medium">{activity.name}</span>
+                <span className="font-medium">{activity.name || 'N/A'}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Points:</span>
-                <span className="font-bold text-blue-600">{activity.points}</span>
+                <span className="font-bold text-blue-600">{activity.points || 0}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Date:</span>
                 <span className="flex items-center">
                   <Calendar className="h-4 w-4 mr-1" />
-                  {new Date(activity.activity_date).toLocaleDateString()}
+                  {activity.activity_date ? new Date(activity.activity_date).toLocaleDateString() : 'N/A'}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Recorded by:</span>
-                <span>{activity.recorded_by}</span>
+                <span>{activity.recorded_by || 'N/A'}</span>
               </div>
             </div>
           </div>

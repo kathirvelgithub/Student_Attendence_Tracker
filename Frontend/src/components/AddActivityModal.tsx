@@ -15,11 +15,11 @@ interface AddActivityModalProps {
 interface FormData {
   student_id: number | '';
   activity_name: string;
-  activity_type: 'academic' | 'sports' | 'cultural' | 'technical' | 'other';
+  activity_type: 'academic' | 'sports' | 'cultural' | 'other';
   description: string;
   activity_date: string;
   points: number | '';
-  status: 'participated' | 'won' | 'completed' | 'pending';
+  status: 'completed' | 'pending' | 'cancelled';
   recorded_by: string;
 }
 
@@ -35,7 +35,7 @@ const AddActivityModal: React.FC<AddActivityModalProps> = ({ isOpen, onClose, on
     description: '',
     activity_date: '',
     points: '',
-    status: 'participated',
+    status: 'completed',
     recorded_by: ''
   });
 
@@ -102,13 +102,11 @@ const AddActivityModal: React.FC<AddActivityModalProps> = ({ isOpen, onClose, on
       newErrors.points = 'Points are required';
     } else if (Number(formData.points) < 0) {
       newErrors.points = 'Points cannot be negative';
-    } else if (Number(formData.points) > 100) {
-      newErrors.points = 'Points cannot exceed 100';
+    } else if (Number(formData.points) > 1000) {
+      newErrors.points = 'Points cannot exceed 1000';
     }
 
-    if (!formData.recorded_by.trim()) {
-      newErrors.recorded_by = 'Recorded by is required';
-    }
+    // recorded_by is optional - no validation needed
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -140,7 +138,7 @@ const AddActivityModal: React.FC<AddActivityModalProps> = ({ isOpen, onClose, on
       description: '',
       activity_date: '',
       points: '',
-      status: 'participated',
+      status: 'completed',
       recorded_by: ''
     });
     setErrors({});
@@ -156,16 +154,16 @@ const AddActivityModal: React.FC<AddActivityModalProps> = ({ isOpen, onClose, on
 
     setLoading(true);
     try {
-      // Prepare data for API
+      // Prepare data for API - Transform frontend fields to backend fields
       const activityData = {
         student_id: Number(formData.student_id),
-        activity_name: formData.activity_name.trim(),
+        title: formData.activity_name.trim(),  // activity_name → title
         activity_type: formData.activity_type,
         description: formData.description.trim() || undefined,
-        activity_date: formData.activity_date,
+        date: formData.activity_date,  // activity_date → date
         points: Number(formData.points),
-        status: formData.status,
-        recorded_by: formData.recorded_by.trim()
+        status: formData.status,  // completed | pending | cancelled
+        recorded_by: formData.recorded_by.trim() || undefined  // Optional field
       };
 
       console.log('Creating activity:', activityData);
@@ -179,6 +177,8 @@ const AddActivityModal: React.FC<AddActivityModalProps> = ({ isOpen, onClose, on
       }
     } catch (err: any) {
       console.error('Add activity error:', err);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
       const errorMessage = handleApiError(err as AxiosError, 'Failed to add activity');
       
       // Handle validation errors from backend
@@ -295,7 +295,6 @@ const AddActivityModal: React.FC<AddActivityModalProps> = ({ isOpen, onClose, on
                   <option value="academic">Academic</option>
                   <option value="sports">Sports</option>
                   <option value="cultural">Cultural</option>
-                  <option value="technical">Technical</option>
                   <option value="other">Other</option>
                 </select>
               </div>
@@ -329,11 +328,11 @@ const AddActivityModal: React.FC<AddActivityModalProps> = ({ isOpen, onClose, on
                   value={formData.points}
                   onChange={handleInputChange}
                   min="0"
-                  max="100"
+                  max="1000"
                   className={`w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.points ? 'border-red-500' : ''
                   }`}
-                  placeholder="0-100"
+                  placeholder="0-1000"
                   disabled={loading}
                 />
                 {errors.points && <p className="text-red-500 text-sm mt-1">{errors.points}</p>}
@@ -351,10 +350,9 @@ const AddActivityModal: React.FC<AddActivityModalProps> = ({ isOpen, onClose, on
                   className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   disabled={loading}
                 >
-                  <option value="participated">Participated</option>
-                  <option value="won">Won</option>
                   <option value="completed">Completed</option>
                   <option value="pending">Pending</option>
+                  <option value="cancelled">Cancelled</option>
                 </select>
               </div>
             </div>
@@ -378,20 +376,17 @@ const AddActivityModal: React.FC<AddActivityModalProps> = ({ isOpen, onClose, on
             {/* Recorded By */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Recorded By *
+                Recorded By
               </label>
               <input
                 type="text"
                 name="recorded_by"
                 value={formData.recorded_by}
                 onChange={handleInputChange}
-                className={`w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.recorded_by ? 'border-red-500' : ''
-                }`}
-                placeholder="Your name or staff ID"
+                className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Optional: Your name or staff ID"
                 disabled={loading}
               />
-              {errors.recorded_by && <p className="text-red-500 text-sm mt-1">{errors.recorded_by}</p>}
             </div>
           </div>
 

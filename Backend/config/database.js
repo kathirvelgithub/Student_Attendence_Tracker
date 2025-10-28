@@ -7,9 +7,11 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'student_attendance_db',
   port: process.env.DB_PORT || 3306,
+  ssl: (process.env.DB_HOST && (process.env.DB_HOST.includes('tidbcloud.com') || process.env.DB_HOST.includes('rlwy.net'))) ? { rejectUnauthorized: false } : false,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  connectTimeout: 60000
 });
 
 // Create promise-based pool

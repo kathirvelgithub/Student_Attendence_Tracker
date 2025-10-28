@@ -97,34 +97,29 @@ const validateActivity = [
   body('student_id')
     .isInt({ min: 1 })
     .withMessage('Valid student ID is required'),
-  body('activity_name')
+  body('title')
     .trim()
-    .isLength({ min: 3, max: 200 })
-    .withMessage('Activity name must be between 3 and 200 characters'),
+    .isLength({ min: 3, max: 255 })
+    .withMessage('Title must be between 3 and 255 characters'),
   body('activity_type')
-    .isIn(['academic', 'sports', 'cultural', 'technical', 'other'])
-    .withMessage('Activity type must be academic, sports, cultural, technical, or other'),
+    .isIn(['academic', 'sports', 'cultural', 'other'])
+    .withMessage('Activity type must be academic, sports, cultural, or other'),
   body('description')
     .optional()
     .trim()
     .isLength({ max: 1000 })
     .withMessage('Description must not exceed 1000 characters'),
-  body('activity_date')
+  body('date')
     .isDate()
-    .withMessage('Valid activity date is required (YYYY-MM-DD)'),
+    .withMessage('Valid date is required (YYYY-MM-DD)'),
   body('points')
     .optional()
-    .isInt({ min: 0, max: 100 })
-    .withMessage('Points must be between 0 and 100'),
+    .isInt({ min: 0, max: 1000 })
+    .withMessage('Points must be between 0 and 1000'),
   body('status')
     .optional()
-    .isIn(['participated', 'won', 'completed', 'pending'])
-    .withMessage('Status must be participated, won, completed, or pending'),
-  body('recorded_by')
-    .optional()
-    .trim()
-    .isLength({ max: 100 })
-    .withMessage('Recorded by must not exceed 100 characters'),
+    .isIn(['completed', 'pending', 'cancelled'])
+    .withMessage('Status must be completed, pending, or cancelled'),
   handleValidationErrors
 ];
 

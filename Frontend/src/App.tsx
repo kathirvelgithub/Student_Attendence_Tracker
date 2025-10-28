@@ -7,7 +7,6 @@ import Students from './pages/Students';
 import Attendance from './pages/Attendance';
 import Activities from './pages/Activities';
 import Reports from './pages/Reports';
-import Rankings from './pages/Rankings';
 import Login from './pages/Login';
 import socketService from './services/socket';
 
@@ -124,7 +123,6 @@ function App() {
               <Route path="/attendance" element={<Attendance />} />
               <Route path="/activities" element={<Activities />} />
               <Route path="/reports" element={<Reports />} />
-              <Route path="/rankings" element={<Rankings />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </Layout>

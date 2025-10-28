@@ -6,7 +6,6 @@ import {
   AttendanceResponse,
   ActivitiesResponse,
   DashboardStats,
-  Ranking,
   ActivityLeaderboard,
   Attendance,
   Activity 
@@ -122,16 +121,18 @@ export const activitiesApi = {
     status?: string;
   }) => api.get<ApiResponse<ActivitiesResponse>>('/activities', { params }),
   
+  getStatistics: () => api.get<ApiResponse<any>>('/activities/statistics/overview'),
+  
   getById: (id: number) => api.get<ApiResponse<{ activity: Activity }>>(`/activities/${id}`),
   
   create: (activity: {
     student_id: number;
-    activity_name: string;
+    title: string;
     activity_type: 'academic' | 'sports' | 'cultural' | 'technical' | 'other';
     description?: string;
-    activity_date: string;
+    date: string;
     points?: number;
-    status?: 'participated' | 'won' | 'completed' | 'pending';
+    status?: 'completed' | 'pending' | 'cancelled';
     recorded_by?: string;
   }) => api.post<ApiResponse<{ activity: Activity }>>('/activities', activity),
   
@@ -194,25 +195,6 @@ export const reportsApi = {
       params: { type, reportType, ...params },
       responseType: 'blob'
     }),
-};
-
-// Rankings API
-export const rankingsApi = {
-  getAttendanceRankings: (params?: {
-    limit?: number;
-    class?: string;
-    section?: string;
-  }) => api.get<ApiResponse<{ rankings: Ranking[] }>>('/rankings/attendance', { params }),
-  
-  getActivityLeaderboard: (params?: {
-    limit?: number;
-    activity_type?: string;
-  }) => api.get<ApiResponse<{ leaderboard: ActivityLeaderboard[] }>>('/rankings/activities', { params }),
-  
-  getAchievements: (studentId?: number) => {
-    const endpoint = studentId ? `/achievements/${studentId}` : '/achievements';
-    return api.get<ApiResponse<any>>(endpoint);
-  },
 };
 
 // Streaks API
