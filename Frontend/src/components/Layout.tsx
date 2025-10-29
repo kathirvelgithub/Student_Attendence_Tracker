@@ -27,7 +27,6 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
     { name: 'Students', href: '/students', icon: Users },
     { name: 'Attendance', href: '/attendance', icon: Calendar },
     { name: 'Activities', href: '/activities', icon: Activity },
-    { name: 'Reports', href: '/reports', icon: BarChart3 },
   ];
 
   const handleLogout = () => {

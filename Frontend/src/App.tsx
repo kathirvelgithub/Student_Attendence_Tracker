@@ -6,7 +6,6 @@ import Dashboard from './pages/Dashboard';
 import Students from './pages/Students';
 import Attendance from './pages/Attendance';
 import Activities from './pages/Activities';
-import Reports from './pages/Reports';
 import Login from './pages/Login';
 import socketService from './services/socket';
 
@@ -122,7 +121,6 @@ function App() {
               <Route path="/students" element={<Students />} />
               <Route path="/attendance" element={<Attendance />} />
               <Route path="/activities" element={<Activities />} />
-              <Route path="/reports" element={<Reports />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </Layout>
