@@ -12,19 +12,30 @@ class SocketService {
     return SocketService.instance;
   }
 
-  public connect(serverUrl: string = 'http://localhost:3000'): void {
+  public connect(serverUrl?: string): void {
     if (this.socket) {
       return;
     }
 
+    // Use environment variable for socket URL, fallback to localhost for dev
+    const socketUrl = serverUrl || 
+                      (import.meta as any).env.VITE_SOCKET_URL || 
+                      'http://localhost:3000';
+
+    console.log('🔌 Connecting to Socket.IO:', socketUrl);
+
     // Get JWT token for authentication
     const token = localStorage.getItem('token');
     
-    this.socket = io(serverUrl, {
+    this.socket = io(socketUrl, {
       transports: ['websocket', 'polling'],
       auth: {
         token: token && token !== 'demo-token' ? token : undefined
-      }
+      },
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5
     });
 
     this.socket.on('connect', () => {

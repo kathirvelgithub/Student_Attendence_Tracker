@@ -149,13 +149,225 @@ const Reports: React.FC = () => {
   const exportReport = async (format: 'pdf' | 'csv') => {
     setIsExporting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate export
-      console.log(`Report exported as ${format.toUpperCase()} successfully!`);
+      if (format === 'csv') {
+        exportToCSV();
+      } else if (format === 'pdf') {
+        exportToPDF();
+      }
     } catch (error) {
-      console.error(`Failed to export report as ${format.toUpperCase()}`);
+      console.error(`Failed to export report as ${format.toUpperCase()}:`, error);
+      alert(`Failed to export report as ${format.toUpperCase()}. Please try again.`);
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const exportToCSV = () => {
+    let csvContent = '';
+    const timestamp = new Date().toISOString().split('T')[0];
+    
+    if (selectedReport === 'attendance') {
+      // Attendance Report CSV
+      csvContent += 'Student ID,Student Name,Total Days,Present Days,Absent Days,Attendance Rate\n';
+      reportData.forEach((item: any) => {
+        csvContent += `${item.studentId || item.student_id},${item.studentName || item.name},"${item.totalDays || 0}","${item.presentDays || 0}","${item.absentDays || 0}","${item.attendanceRate || 0}%"\n`;
+      });
+      downloadCSV(csvContent, `attendance-report-${timestamp}.csv`);
+    } else if (selectedReport === 'activities') {
+      // Activity Report CSV
+      csvContent += 'Student ID,Student Name,Total Activities,Completed,In Progress,Not Started,Completion Rate\n';
+      reportData.forEach((item: any) => {
+        csvContent += `${item.studentId || item.student_id},${item.studentName || item.name},"${item.totalActivities || 0}","${item.completed || 0}","${item.inProgress || 0}","${item.notStarted || 0}","${item.completionRate || 0}%"\n`;
+      });
+      downloadCSV(csvContent, `activity-report-${timestamp}.csv`);
+    } else if (selectedReport === 'summary') {
+      // Summary Report CSV
+      csvContent += 'Student ID,Student Name,Attendance Rate,Activity Completion,Overall Score\n';
+      reportData.forEach((item: any) => {
+        csvContent += `${item.studentId || item.student_id},${item.studentName || item.name},"${item.attendanceRate || 0}%","${item.activityCompletion || 0}%","${item.overallScore || 0}"\n`;
+      });
+      downloadCSV(csvContent, `summary-report-${timestamp}.csv`);
+    }
+  };
+
+  const downloadCSV = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportToPDF = () => {
+    const timestamp = new Date().toISOString().split('T')[0];
+    const printWindow = window.open('', '_blank');
+    
+    if (!printWindow) {
+      alert('Please allow pop-ups to export PDF');
+      return;
+    }
+
+    let tableHTML = '';
+    let title = '';
+
+    if (selectedReport === 'attendance') {
+      title = 'Attendance Report';
+      tableHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Total Days</th>
+              <th>Present</th>
+              <th>Absent</th>
+              <th>Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reportData.map((item: any) => `
+              <tr>
+                <td>${item.studentId || item.student_id}</td>
+                <td>${item.studentName || item.name}</td>
+                <td>${item.totalDays || 0}</td>
+                <td>${item.presentDays || 0}</td>
+                <td>${item.absentDays || 0}</td>
+                <td>${item.attendanceRate || 0}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } else if (selectedReport === 'activities') {
+      title = 'Activity Report';
+      tableHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Total</th>
+              <th>Completed</th>
+              <th>In Progress</th>
+              <th>Not Started</th>
+              <th>Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reportData.map((item: any) => `
+              <tr>
+                <td>${item.studentId || item.student_id}</td>
+                <td>${item.studentName || item.name}</td>
+                <td>${item.totalActivities || 0}</td>
+                <td>${item.completed || 0}</td>
+                <td>${item.inProgress || 0}</td>
+                <td>${item.notStarted || 0}</td>
+                <td>${item.completionRate || 0}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } else if (selectedReport === 'summary') {
+      title = 'Summary Report';
+      tableHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Attendance Rate</th>
+              <th>Activity Completion</th>
+              <th>Overall Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reportData.map((item: any) => `
+              <tr>
+                <td>${item.studentId || item.student_id}</td>
+                <td>${item.studentName || item.name}</td>
+                <td>${item.attendanceRate || 0}%</td>
+                <td>${item.activityCompletion || 0}%</td>
+                <td>${item.overallScore || 0}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${title} - ${timestamp}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 20px;
+              color: #333;
+            }
+            h1 {
+              color: #2563eb;
+              margin-bottom: 10px;
+            }
+            .metadata {
+              color: #666;
+              font-size: 14px;
+              margin-bottom: 20px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            th, td {
+              border: 1px solid #ddd;
+              padding: 12px;
+              text-align: left;
+            }
+            th {
+              background-color: #2563eb;
+              color: white;
+              font-weight: bold;
+            }
+            tr:nth-child(even) {
+              background-color: #f9fafb;
+            }
+            tr:hover {
+              background-color: #f3f4f6;
+            }
+            @media print {
+              body { padding: 0; }
+              button { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>${title}</h1>
+          <div class="metadata">
+            <p>Generated on: ${new Date().toLocaleString()}</p>
+            <p>Total Records: ${reportData.length}</p>
+          </div>
+          ${tableHTML}
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+                setTimeout(function() {
+                  window.close();
+                }, 100);
+              }, 500);
+            }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   const handleRefresh = () => {
