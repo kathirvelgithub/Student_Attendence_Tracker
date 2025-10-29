@@ -7,6 +7,8 @@ A modern, production-ready React frontend application for managing student recor
 - **Backend API**: [https://student-attendence-tracker.onrender.com](https://student-attendence-tracker.onrender.com)
 - **API Endpoints**: `https://student-attendence-tracker.onrender.com/api/v1`
 
+📖 **[Vercel Deployment Guide](./VERCEL_DEPLOYMENT.md)** - Complete step-by-step guide for deploying to Vercel
+
 ## 🚀 Features
 
 ### Core Functionality
