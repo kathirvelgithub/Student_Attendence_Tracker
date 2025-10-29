@@ -5,10 +5,8 @@ import { reportsApi } from '../services';
 import { DashboardStats } from '../types';
 import socketService from '../services/socket';
 import toast from 'react-hot-toast';
-import { BackendEndpointTester } from '../components/BackendEndpointTester';
 
 const Dashboard: React.FC = () => {
-  const [showTester, setShowTester] = React.useState(true); // Show tester by default
   const [stats, setStats] = React.useState({
     totalStudents: 0,
     activeStudents: 0,
@@ -195,33 +193,6 @@ const Dashboard: React.FC = () => {
           Last updated: {new Date().toLocaleString()}
         </div>
       </div>
-
-      {/* Backend Endpoint Tester - Show at the top */}
-      {showTester && (
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">API Endpoint Testing</h2>
-            <button
-              onClick={() => setShowTester(false)}
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              Hide Tester
-            </button>
-          </div>
-          <BackendEndpointTester />
-        </div>
-      )}
-
-      {!showTester && (
-        <div className="mb-6">
-          <button
-            onClick={() => setShowTester(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            🔌 Show Endpoint Tester
-          </button>
-        </div>
-      )}
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
