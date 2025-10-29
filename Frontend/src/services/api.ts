@@ -1,11 +1,18 @@
 import axios from 'axios';
 
-const API_BASE_URL = (import.meta as any).env.VITE_API_URL || 'https://student-attendence-tracker.onrender.com/api/v1';
+// Use Vercel proxy in production to avoid CORS, direct URL in development
+const API_BASE_URL = (import.meta as any).env.PROD 
+  ? '/api/v1'  // Vercel will proxy this to Render backend
+  : (import.meta as any).env.VITE_API_URL || 'http://localhost:3000/api/v1';
+
+console.log('🌐 API Base URL:', API_BASE_URL);
+console.log('🔧 Environment:', (import.meta as any).env.MODE);
+console.log('📍 Production:', (import.meta as any).env.PROD);
 
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000,  // Increased timeout for Render cold starts
   headers: {
     'Content-Type': 'application/json',
   },
